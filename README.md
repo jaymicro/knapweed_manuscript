@@ -8,3 +8,4 @@ Plot includes all plots generated from the data.
 - soil_cn.csv contains the total soil carbon and total soil nitrogen data.
 - soil_carbon.Rmd is the rmarkdown file that contains all codes used to analyze the data and generate the plots
 - soil_carbon.html is an html output from the rmarkdown file
+- Map contains the files that can be imported in QGIS to generate the map
