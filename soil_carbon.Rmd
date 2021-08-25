@@ -28,7 +28,7 @@ library(ggtext)
 
 # Biomass Analysis --------------------------------------------------------
 ```{r fig.height=4, fig.width=8}
-df_biomass <- read.csv("rf_biomass.csv" ) %>% 
+df_biomass <- read.csv("data/rf_biomass.csv" ) %>% 
   janitor::clean_names() %>% 
   drop_na()
 
@@ -77,7 +77,7 @@ ggsave(biomass, filename = "biomass.jpg",path = "./plot", width = 6, height = 4,
 
 
 ```{r, fig.height= 4, fig.width=8}
-df_nut <- read.csv("soil_cn.csv") %>% 
+df_nut <- read.csv("data/soil_cn.csv") %>% 
   janitor::clean_names() %>% 
   mutate(cn = c_result/n_result)
 
@@ -235,7 +235,7 @@ ggsave (comb_plot_new, filename = "comb_plot.jpg", path = "./plot", width = 12, 
 # Nutrient composition ------------------------------------------------
 
 ```{r, fig.height= 4, fig.width=8}
-rf_biom <- read.csv("rf_biomass.csv") %>% 
+rf_biom <- read.csv("data/rf_biomass.csv") %>% 
   janitor::clean_names() %>% 
   mutate(id = str_remove(plant_id, "^[1-9]+-*")) %>% 
   drop_na() %>% 
@@ -244,12 +244,12 @@ rf_biom <- read.csv("rf_biomass.csv") %>%
   mutate(id = str_remove(id, "-")) %>% 
   arrange(id)
 
-cn_df <- read.csv("soil_cn.csv") %>% 
+cn_df <- read.csv("data/soil_cn.csv") %>% 
   janitor::clean_names() %>% 
   arrange(id) %>% 
   mutate(id = str_trim(id))
 
-ele_df <- read.csv( "elements.csv" ) %>% 
+ele_df <- read.csv( "data/elements.csv" ) %>% 
   janitor::clean_names() %>% 
   arrange(code) 
  
@@ -308,7 +308,7 @@ nutrient_dis
 
 
 ```{r fig.height= 10, fig.width=16}
-ele_df <- read.csv( "elements.csv" ) %>% 
+ele_df <- read.csv( "data/elements.csv" ) %>% 
   janitor::clean_names(case = "upper_camel") %>% 
   select(-c(Sample, Code, PatchSize))
 
