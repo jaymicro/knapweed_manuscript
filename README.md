@@ -13,6 +13,6 @@ Plot includes all plots generated from the data.
 - soil_carbon.Rmd is the rmarkdown file that contains all codes used to analyze the data and generate the plots
 - soil_carbon.html is an html output from the rmarkdown file
 
-**Map**
+**map**
 
 - Map contains the files that can be imported in QGIS to generate the map
