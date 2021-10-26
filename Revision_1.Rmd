@@ -9,6 +9,8 @@ library(tidyverse)
 library(lme4)
 library(lmerTest)
 library(vegan)
+library(factoextra)
+
 ```
 
 
@@ -106,6 +108,9 @@ PCA of the elemental composition
 norm_ele <- vegan::decostand(df_ele, method = "normalize", MARGIN = 1)
 pc <- prcomp(norm_ele)
 summary(pc)$importance[,1:2]
+var <- get_pca_var(pc)
+var$contrib
+fviz_contrib(pc, choice = "var", axes = 1, top = 10)
 
 PC1 <- pc$x[,1]
 PC2 <- pc$x[,2]
