@@ -173,7 +173,8 @@ pre code {
 library(lme4)
 library(lmerTest)
 library(vegan)
-library(factoextra)</code></pre>
+library(factoextra)
+library(FactoMineR)</code></pre>
 <p>Biomass data import and wrangling.Taking mean of biomass at plot level</p>
 <pre class="r"><code>df_biomass &lt;- read.csv(&quot;data/rf_biomass.csv&quot; ) %&gt;% 
   janitor::clean_names() %&gt;% 

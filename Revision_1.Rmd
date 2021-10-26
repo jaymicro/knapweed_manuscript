@@ -10,6 +10,7 @@ library(lme4)
 library(lmerTest)
 library(vegan)
 library(factoextra)
+library(FactoMineR)
 
 ```
 
@@ -111,6 +112,7 @@ summary(pc)$importance[,1:2]
 var <- get_pca_var(pc)
 var$contrib
 fviz_contrib(pc, choice = "var", axes = 1, top = 10)
+
 
 PC1 <- pc$x[,1]
 PC2 <- pc$x[,2]
