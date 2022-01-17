@@ -39,7 +39,7 @@ lattice::qqmath(mod_biomass)
 shapiro.test(resid(mod_biomass))
 
 
-df_biomass %>% group_by(plant_community) %>% summarise(median(biomass))
+df_biomass %>% group_by(plant_community) %>% summarise(mean(biomass))
 
 my_comparisions <- list(c("Knapweed","Natural"))
 
@@ -89,7 +89,7 @@ lattice::qqmath(mod_carbon)
 shapiro.test(resid(mod_carbon))
 anova(mod_carbon)
 
-df_nut %>% group_by(plant_community) %>% summarise(median(c_result))
+df_nut %>% group_by(plant_community) %>% summarise(mean(c_result))
 # Plot carbon data --------------------------------------------------------
 
 my_comparisions <- list(c("knapweed","natural"))
@@ -133,7 +133,7 @@ shapiro.test(resid(mod_nitrogen))
 anova(mod_nitrogen)
 
 
-df_nut %>% group_by(plant_community) %>% summarise(median(n_result))
+df_nut %>% group_by(plant_community) %>% summarise(mean(n_result))
 
 # Plot nitrogen -----------------------------------------------------------
 
