@@ -47,7 +47,7 @@ biomass <- ggplot(df_biomass, aes(x = plant_community,y = sqrt(biomass), fill = 
   geom_violin(width= 0.5, alpha = 0.6,show.legend = F) +
   geom_boxplot(width = 0.25) +
   stat_compare_means(comparisons = my_comparisions,
-                     method = "t.test",
+                     method =  "t.test",
                      label = "p.signif",
                      size = 6,
                      label.y = 1.25) +

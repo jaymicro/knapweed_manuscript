@@ -11,6 +11,9 @@ library(lmerTest)
 library(vegan)
 library(factoextra)
 library(FactoMineR)
+library(ggsci)
+library(patchwork)
+library(ggpubr)
 
 ```
 
@@ -121,5 +124,182 @@ dist_eucc <- vegdist(norm_ele, method = "euclidean")
 
 set.seed(11111)
 adonis2(dist_eucc ~ ele_df$plant_community * ele_df$patch_size)
+```
+
+Plots
+```{r}
+biomass <- ggplot(df_biomass, aes(x = plant_community,y = sqrt(biomass), fill = plant_community )) +
+  geom_violin(width= 0.5, alpha = 0.6,show.legend = F) +
+  geom_boxplot(width = 0.25) +
+  ylim(c(0,1.4))+
+  theme_bw()+
+  theme(panel.grid = element_blank(),
+        axis.text.x =  element_blank(),
+        axis.ticks.x = element_blank()) +
+  ggeasy::easy_all_text_colour(colour = "black") +
+  ggeasy::easy_all_text_size(size =14) +
+  scale_fill_jama(name = "Knapweed", labels = c("Invaded", "Uninvaded")) +
+  labs(x = NULL,
+       y = expression(sqrt(Biomass ~(g)))) +
+  geom_segment(aes(x = 1, xend = 2,
+                   y = 1.3, yend = 1.3),
+               lwd = 1) +
+  annotate(geom = "text", x = 1.5, y = 1.35, label = "*", size = 10)
+
+carbon <- ggplot(df_nut, aes(x = plant_community,y = sqrt(c_result), fill = plant_community )) +
+  geom_violin(width= 0.5, alpha = 0.6, show.legend = F) +
+  geom_boxplot(width = 0.25) +
+  ylim(c(0,4))+
+  theme_bw()+
+  theme(panel.grid = element_blank(),
+        axis.text.x =  element_blank(),
+        axis.ticks.x = element_blank()) +
+  ggeasy::easy_all_text_colour(colour = "black") +
+  ggeasy::easy_all_text_size(size =14) +
+  scale_fill_jama(name = "Knapweed", labels = c("Invaded", "Uninvaded")) +
+  labs(x = NULL,
+       y = expression(sqrt(Carbon ~("%")))) +
+  geom_segment(aes(x = 1, xend = 2,
+                   y = 3.5, yend = 3.5),
+               lwd = 1) +
+  annotate(geom = "text", x = 1.5, y = 3.6, label = "**", size = 10)
+
+nitrogen <-  ggplot(df_nut, aes(x = plant_community,y = sqrt(n_result), fill = plant_community )) +
+  geom_violin(width= 0.5, alpha = 0.6, show.legend = F) +
+  geom_boxplot(width = 0.25) +
+  ylim(c(0,1.5))+
+  theme_bw()+
+  theme(panel.grid = element_blank(),
+        axis.text.x =  element_blank(),
+        axis.ticks.x = element_blank()) +
+  ggeasy::easy_all_text_colour(colour = "black") +
+  ggeasy::easy_all_text_size(size =14) +
+  scale_fill_jama(name = "Knapweed", labels = c("Invaded", "Uninvaded")) +
+  labs(x = NULL,
+       y = expression(sqrt(Nitrogen ~("%")))) +
+  geom_segment(aes(x = 1, xend = 2,
+                   y = 1.25, yend = 1.25),
+               lwd = 1) +
+  annotate(geom = "text", x = 1.5, y = 1.3, label = "*", size = 10)
+
+carbon_nitrogen <- ggplot(df_nut, aes(x = plant_community,y = cn, fill = plant_community )) +
+  geom_violin(width= 0.5, alpha = 0.6, show.legend = F) +
+  geom_boxplot(width = 0.25) +
+  ylim(c(0,15))+
+  theme_bw()+
+  theme(panel.grid = element_blank(),
+        axis.text.x =  element_blank(),
+        axis.ticks.x = element_blank()) +
+  ggeasy::easy_all_text_colour(colour = "black") +
+  ggeasy::easy_all_text_size(size =14) +
+  scale_fill_jama(name = "Knapweed", labels = c("Invaded", "Uninvaded")) +
+  labs(x = NULL,
+       y = expression(sqrt(Nitrogen ~("%")))) +
+  geom_segment(aes(x = 1, xend = 2,
+                   y = 12.5, yend = 12.5),
+               lwd = 1) +
+  annotate(geom = "text", x = 1.5, y = 13, label = "**", size = 10)
+
+
+comb_plot <- (biomass + carbon) / (nitrogen + carbon_nitrogen  ) +
+  plot_annotation(tag_levels = 'A', tag_prefix = "2") +
+  plot_layout(guides = "collect") & theme(legend.position = 'bottom')
+
+comb_plot_new <- comb_plot & theme(axis.title.y =  element_text(size = 24),
+                                   legend.text =  element_text(size = 20),
+                                   legend.title = element_text(size = 20))
+
+comb_plot_new
+
+ggsave (comb_plot_new, filename = "comb_plot.jpg", path = "./plot", width = 12, height = 10, units = "in", dpi = 900)
+
+
+
+```
+
+Correlations
+```{r}
+
+rf_biom <- read.csv("data/rf_biomass.csv") %>% 
+  janitor::clean_names() %>% 
+  mutate(id = str_remove(plant_id, "^[1-9]+-*")) %>% 
+  drop_na() %>% 
+  group_by(plant_community, id) %>% 
+  summarise(bm = mean(biomass), .groups = "drop")%>% 
+  mutate(id = str_remove(id, "-")) %>% 
+  arrange(id)
+
+cn_df <- read.csv("data/soil_cn.csv") %>% 
+  janitor::clean_names() %>% 
+  arrange(id) %>% 
+  mutate(id = str_trim(id))
+
+ele_df <- read.csv( "data/elements.csv" ) %>% 
+  janitor::clean_names() %>% 
+  arrange(code) 
+ 
+df_ele <- ele_df %>% 
+  select(-c(code, patch_size, plant_community, sample))
+
+meta_ele <- ele_df %>% 
+   rename(id = code) %>% 
+  left_join(., rf_biom, by = "id") %>% 
+  left_join(., cn_df, by = "id") %>% 
+  rename(treatment = plant_community.x)
+
+norm_ele <- vegan::decostand(df_ele, method = "normalize", MARGIN = 1)
+
+pc <- prcomp(norm_ele)
+summary(pc)$importance[,1:2]
+
+
+PC1 <- pc$x[,1]
+PC2 <- pc$x[,2]
+
+plt_df <- data.frame(PC1, PC2,
+                     meta_ele)
+
+```
+
+correlation plot
+```{r}
+Corr_carbon_PC1 <-ggplot(plt_df, aes(x= PC1, y = c_result)) +
+  geom_point(pch = 21, fill = "royalblue4", size = 4, alpha = 0.5) +
+  geom_smooth(method = "lm", se = T, color = "black",  lwd = 1, linetype = 5) +
+  stat_cor(method = "pearson", label.x = -0.1, label.y = 12, size = 5) +
+  labs(y = "Carbon %",
+       x = "PC axis 1") +
+  theme_classic() +
+  ggeasy::easy_all_text_size(size = 14) +
+  ggeasy::easy_all_text_color("black") +
+  ylim(c(0,13))
+                             
+
+Corr_nitrogen_PC1 <-ggplot(plt_df, aes(x= PC1, y = n_result)) +
+  geom_point(pch = 21, fill = "royalblue4", size = 4, alpha = 0.5) +
+  geom_smooth(method = "lm", se = T, color = "black",  lwd = 1, linetype = 5) +
+  stat_cor(method = "pearson", label.x = -0.1, label.y = 1.35, size = 5) +
+  labs(y = "Carbon %",
+       x = "PC axis 1") +
+  theme_classic() +
+  ggeasy::easy_all_text_size(size = 14) +
+  ggeasy::easy_all_text_color("black") +
+  ylim(c(0,1.5))
+
+
+Corr_bm_PC1 <-ggplot(plt_df, aes(x= PC1, y = bm)) +
+  geom_point(pch = 21, fill = "royalblue4", size = 4, alpha = 0.5) +
+  geom_smooth(method = "lm", se = T, color = "black", lwd = 1, linetype = 5) +
+  stat_cor(method = "pearson", label.x = -0.1, label.y = 0.8, size = 5) +
+  labs(y = "Carbon %",
+       x = "PC axis 1") +
+  theme_classic() +
+  ggeasy::easy_all_text_size(size = 14)+
+  ggeasy::easy_all_text_color("black")+
+  ylim(c(0,0.85))
+
+plt <- Corr_carbon_PC1 + Corr_nitrogen_PC1 + Corr_bm_PC1 + plot_annotation(tag_levels = 'A', tag_prefix = "4") & theme(axis.title = element_text(size = 20) )
+plt
+ggsave(plt, filename = "corr_plt.jpg", path = "./plot", width = 10, height = 3.25, units = "in", dpi = 800)
 ```
 
