@@ -16,3 +16,7 @@ Plot includes all plots generated from the data.
 **map**
 
 - Map contains the files that can be imported in QGIS to generate the map
+
+**Revision_1**
+- Revision_1.html contains output after reanalyzing the data as per reviewers recommendations
+- Revision_1.Rmd contains codes for reanalysis
