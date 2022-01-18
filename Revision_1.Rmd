@@ -278,7 +278,7 @@ Corr_nitrogen_PC1 <-ggplot(plt_df, aes(x= PC1, y = n_result)) +
   geom_point(pch = 21, fill = "royalblue4", size = 4, alpha = 0.5) +
   geom_smooth(method = "lm", se = T, color = "black",  lwd = 1, linetype = 5) +
   stat_cor(method = "pearson", label.x = -0.1, label.y = 1.35, size = 5) +
-  labs(y = "Carbon %",
+  labs(y = "Nitrogen %",
        x = "PC axis 1") +
   theme_classic() +
   ggeasy::easy_all_text_size(size = 14) +
@@ -290,7 +290,7 @@ Corr_bm_PC1 <-ggplot(plt_df, aes(x= PC1, y = bm)) +
   geom_point(pch = 21, fill = "royalblue4", size = 4, alpha = 0.5) +
   geom_smooth(method = "lm", se = T, color = "black", lwd = 1, linetype = 5) +
   stat_cor(method = "pearson", label.x = -0.1, label.y = 0.8, size = 5) +
-  labs(y = "Carbon %",
+  labs(y = "Biomass (g)",
        x = "PC axis 1") +
   theme_classic() +
   ggeasy::easy_all_text_size(size = 14)+
