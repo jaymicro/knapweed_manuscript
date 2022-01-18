@@ -3,7 +3,7 @@ title: "Revisions_1"
 output: html_document
 ---
 
-Import all necessary packages
+#Import all necessary packages
 ```{r, warning=FALSE, message=FALSE}
 library(tidyverse)
 library(lme4)
@@ -18,7 +18,7 @@ library(ggpubr)
 ```
 
 
-Biomass data import and wrangling.Taking mean of biomass at plot level
+#Biomass data import and wrangling.Taking mean of biomass at plot level
 ```{r}
 df_biomass <- read.csv("data/rf_biomass.csv" ) %>% 
   janitor::clean_names() %>% 
@@ -36,7 +36,7 @@ nw_biomass <- df_biomass %>%
 ```
 
 
-Nutrient data import and wrangling
+#Nutrient data import and wrangling
 ```{r}
 df_nut <- read.csv("data/soil_cn.csv") %>% 
   janitor::clean_names() %>% 
@@ -45,7 +45,7 @@ df_nut <- read.csv("data/soil_cn.csv") %>%
 ```
 
 
-Import Element data and wrangling
+#Import Element data and wrangling
 ```{r}
 ele_df <- read.csv( "data/elements.csv" ) %>% 
   janitor::clean_names() %>% 
@@ -55,11 +55,11 @@ df_ele <- ele_df %>%
   select(-c(code, patch_size, plant_community, sample))
 ```
 
-DATA RE-ANLAYSIS
+#*DATA RE-ANLAYSIS*
 
 
 
-Biomass analysis. Plot level mean calculated.
+#Biomass analysis. Plot level mean calculated.
 patch included as fixed effect. Plot numbers are random variables.
 ```{r}
 mod_biomass <- lmer(sqrt(biomass_mean) ~ plant_community*patch_size + (1|plot_id)  , data = nw_biomass)
@@ -71,7 +71,7 @@ hist(resid(mod_biomass))
 
 
 
-Carbon analysis. 
+#Carbon analysis. 
 patch included as fixed effect. Plot numbers are random variables.
 ```{r}
 mod_carbon <- lmer(sqrt(c_result) ~ plant_community*patch_size + (1|plot_id)  , data = df_nut)
@@ -83,7 +83,7 @@ hist(resid(mod_carbon))
 
 
 
-Nitrogen analysis. 
+#Nitrogen analysis. 
 patch included as fixed effect. Plot numbers are random variables.
 ```{r}
 mod_nitrogen <- lmer(sqrt(n_result) ~ plant_community*patch_size + (1|plot_id)   , data = df_nut)
@@ -95,7 +95,7 @@ hist(resid(mod_nitrogen))
 
 
 
-Carbon/Nitrogen analysis. 
+#Carbon/Nitrogen analysis. 
 patch included as fixed effect. Plot numbers are random variables
 ```{r}
 mod_cn <- lmer(cn ~ plant_community*patch_size + (1|plot_id), data = df_nut)
@@ -107,7 +107,7 @@ hist(resid(mod_cn))
 
 
 
-PCA of the elemental composition
+#PCA of the elemental composition
 ```{r}
 norm_ele <- vegan::decostand(df_ele, method = "normalize", MARGIN = 1)
 pc <- prcomp(norm_ele)
@@ -125,7 +125,7 @@ dist_eucc <- vegdist(norm_ele, method = "euclidean")
 
 ```
 
-Plots
+#Plots
 ```{r}
 biomass <- ggplot(df_biomass, aes(x = plant_community,y = sqrt(biomass), fill = plant_community )) +
   geom_violin(width= 0.5, alpha = 0.6,show.legend = F) +
@@ -210,7 +210,7 @@ comb_plot_new <- comb_plot & theme(axis.title.y =  element_text(size = 24),
 
 comb_plot_new
 
-ggsave (comb_plot_new, filename = "comb_plot.jpg", path = "./plot", width = 12, height = 10, units = "in", dpi = 900)
+ggsave (comb_plot_new, filename = "comb_plot.jpg", path = "./plot_revision1", width = 12, height = 10, units = "in", dpi = 900)
 
 
 
@@ -299,7 +299,7 @@ Corr_bm_PC1 <-ggplot(plt_df, aes(x= PC1, y = bm)) +
 
 plt <- Corr_carbon_PC1 + Corr_nitrogen_PC1 + Corr_bm_PC1 + plot_annotation(tag_levels = 'A', tag_prefix = "4") & theme(axis.title = element_text(size = 20) )
 plt
-ggsave(plt, filename = "corr_plt.jpg", path = "./plot", width = 10, height = 3.25, units = "in", dpi = 800)
+ggsave(plt, filename = "corr_plt.jpg", path = "./plot_revision1", width = 10, height = 3.25, units = "in", dpi = 800)
 ```
 
 
@@ -328,7 +328,7 @@ nutrient_dis <- ggplot(plt_df, aes(PC1, PC2, fill = treatment))+
   ggeasy::easy_all_text_colour(colour = "black") +
   ggeasy::easy_all_text_size(size =14)
 nutrient_dis
-  ggsave(nutrient_dis, filename = "nutrient_dis.jpg",path = "./plot", width = 8, height = 6, units = "in",dpi = 800)
+  ggsave(nutrient_dis, filename = "nutrient_dis.jpg",path = "./plot_revision1", width = 8, height = 6, units = "in",dpi = 800)
 
 
 ```
