@@ -216,7 +216,7 @@ ggsave (comb_plot_new, filename = "comb_plot.jpg", path = "./plot_revision1", wi
 
 ```
 
-Correlations
+#Correlations
 ```{r}
 
 rf_biom <- read.csv("data/rf_biomass.csv") %>% 
@@ -260,7 +260,7 @@ plt_df <- data.frame(PC1, PC2,
 
 ```
 
-correlation plot
+#correlation plot
 ```{r}
 Corr_carbon_PC1 <-ggplot(plt_df, aes(x= PC1, y = c_result)) +
   geom_point(pch = 21, fill = "royalblue4", size = 4, alpha = 0.5) +
@@ -303,7 +303,7 @@ ggsave(plt, filename = "corr_plt.jpg", path = "./plot_revision1", width = 10, he
 ```
 
 
-PCA figure
+#PCA figure
 ```{r}
 dist_eucc <- vegdist(norm_ele, method = "euclidean")
 
