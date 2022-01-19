@@ -193,7 +193,7 @@ carbon_nitrogen <- ggplot(df_nut, aes(x = plant_community,y = cn, fill = plant_c
   ggeasy::easy_all_text_size(size =14) +
   scale_fill_jama(name = "Knapweed", labels = c("Invaded", "Uninvaded")) +
   labs(x = NULL,
-       y = expression(sqrt(Nitrogen ~("%")))) +
+       y = "Carbon/Nitrogen") +
   geom_segment(aes(x = 1, xend = 2,
                    y = 12.5, yend = 12.5),
                lwd = 1) +
