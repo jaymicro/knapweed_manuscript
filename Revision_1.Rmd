@@ -126,7 +126,7 @@ dist_eucc <- vegdist(norm_ele, method = "euclidean")
 ```
 
 #Plots
-```{r}
+```{r, fig.height= 6, fig.width=8}
 biomass <- ggplot(df_biomass, aes(x = plant_community,y = sqrt(biomass), fill = plant_community )) +
   geom_violin(width= 0.5, alpha = 0.6,show.legend = F) +
   geom_boxplot(width = 0.25) +
@@ -217,7 +217,7 @@ ggsave (comb_plot_new, filename = "comb_plot.jpg", path = "./plot_revision1", wi
 ```
 
 #Correlations
-```{r}
+```{r, fig.height= 6, fig.width=8}
 
 rf_biom <- read.csv("data/rf_biomass.csv") %>% 
   janitor::clean_names() %>% 
@@ -261,7 +261,7 @@ plt_df <- data.frame(PC1, PC2,
 ```
 
 #correlation plot
-```{r}
+```{r, fig.height= 6, fig.width=12}
 Corr_carbon_PC1 <-ggplot(plt_df, aes(x= PC1, y = c_result)) +
   geom_point(pch = 21, fill = "royalblue4", size = 4, alpha = 0.5) +
   geom_smooth(method = "lm", se = T, color = "black",  lwd = 1, linetype = 5) +
@@ -304,7 +304,7 @@ ggsave(plt, filename = "corr_plt.jpg", path = "./plot_revision1", width = 10, he
 
 
 #PCA figure
-```{r}
+```{r, fig.height= 6, fig.width=8}
 dist_eucc <- vegdist(norm_ele, method = "euclidean")
 
 set.seed(11111)
