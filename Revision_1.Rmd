@@ -114,7 +114,7 @@ pc <- prcomp(norm_ele)
 summary(pc)$importance[,1:2]
 var <- get_pca_var(pc)
 var$contrib
-fviz_contrib(pc, choice = "var", axes = 1, top = 10)
+fviz_contrib(pc, choice = "var", axes = 1:2, top = 10)
 
 
 PC1 <- pc$x[,1]
