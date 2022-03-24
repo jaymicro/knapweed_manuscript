@@ -85,7 +85,7 @@ all_data <- rbind(row_wise_normalization, column_wise_normalization, raw_data) %
   ggeasy::easy_all_text_size(size = 16)
 
 all_data
-ggsave(all_data, filename = "plot/data_normalizedfig.jpg", height = 8, width = 10, units = "in", dpi = 600)
+ggsave(all_data, filename = "plot_revision2/data_normalizedfig.jpg", height = 8, width = 10, units = "in", dpi = 600)
 
 ```
 
@@ -93,7 +93,7 @@ ggsave(all_data, filename = "plot/data_normalizedfig.jpg", height = 8, width = 1
 
 ## Corrplot of elements
 ```{r}
-jpeg("corr.plot.jpg", width = 2840, height = 2840, res = 300)
+jpeg("plot_revision2/corr.plot.jpg", width = 2840, height = 2840, res = 300)
 corrplot::corrplot.mixed(cor(df_elements[,2:13]), upper = "ellipse")
 dev.off()
 ```
@@ -134,13 +134,13 @@ plt_pca_loadings <- ggplot(plt, aes(PC1, PC2,  fill = treatment))  +
                    max.overlaps = 15,box.padding = 0.2,  label.padding = 0.3, inherit.aes = FALSE)
 plt_pca_loadings
 
-ggsave(plt_pca_loadings, filename = "plot/plt_pca_loadings.jpg", height = 8, width = 10, units = "in", dpi = 600)
+ggsave(plt_pca_loadings, filename = "plot_revision2/plt_pca_loadings.jpg", height = 8, width = 10, units = "in", dpi = 600)
 ```
 
 
 ## plot PCA with broken stick model
 ```{r}
-jpeg("bstick.jpg", width = 2840, height = 1840, res =400)
+jpeg("plot_revision2/bstick.jpg", width = 2840, height = 1840, res =400)
 screeplot(PC, bstick = T,
           main = "PCA")
 dev.off()
@@ -245,7 +245,7 @@ plt_all <- (plt_c_pc1 + plt_n_pc1) / (plt_biom_pc + plot_biom_cn) +
 
 plt_all
 
-ggsave(plt_all, filename = "plot/plt_all.jpg", height = 10, width = 10, units = "in", dpi = 800)
+ggsave(plt_all, filename = "plot_revision2/plt_all.jpg", height = 10, width = 10, units = "in", dpi = 800)
 
 
 ```
