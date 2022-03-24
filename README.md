@@ -21,6 +21,6 @@ Plot includes all plots generated from the data.
 - Revision_1.html contains output after reanalyzing the data as per reviewers recommendations
 - Revision_1.Rmd contains codes for reanalysis
 
-**Revision_1**
+**Revision_2**
 - Revision_2.html contains output after reanalyzing the data as per reviewers recommendations
 - Revision_2.Rmd contains codes for reanalysis
