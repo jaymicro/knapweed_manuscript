@@ -1,0 +1,252 @@
+---
+title: "Revision_2"
+author: "jay"
+date: "24/03/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+##Import packages
+```{r warning=FALSE, message=FALSE}
+library(tidyverse)
+library(janitor)
+library(lme4)
+library(lmerTest)
+library(vegan)
+library(scales)
+library(glue)
+library(ggsci)
+library(ggrepel)
+library(ggcorrplot)
+library(ggpubr)
+library(patchwork)
+
+```
+
+
+## Import and wrangle data
+```{r}
+df_elements <- read.csv("data/elements.csv")
+
+df_biomass <- read.csv("data/rf_biomass.csv") %>% 
+  janitor::clean_names() %>% 
+  drop_na() %>% 
+  mutate(code = str_remove(plant_id, pattern = "[1-9]-")) %>% 
+  mutate(code = str_remove(code, pattern = "-"))%>% 
+  group_by(plant_community, code) %>% 
+  summarize(biomass_mean = mean(biomass)) %>% 
+  ungroup()
+
+df_cn <- read.csv("data/soil_cn.csv") %>% 
+  mutate(code = str_trim(ID, side ="both"))
+
+df <- left_join(df_cn, df_elements, by = c("code", "plant.community"="Plant.community")) %>% 
+  left_join(., df_biomass, by = c("code"))
+
+```
+
+
+## Data normalization
+```{r}
+row_wise_normalization <- df_elements[,2:13] %>% 
+  vegan::decostand(method = "normalize", MARGIN = 1) %>% 
+  mutate(normalization = rep("Row normalized data", times = 80))
+
+column_wise_normalization <- df_elements[,2:13] %>% 
+  vegan::decostand(method = "normalize", MARGIN = 2) %>% 
+  mutate(normalization = rep("Column normalized data", times = 80))
+
+raw_data <- df_elements[,2:13]%>% 
+  mutate(normalization = rep("Non normalized data", times = 80))
+
+```
+
+
+## Plot normalizaed data
+```{r}
+all_data <- rbind(row_wise_normalization, column_wise_normalization, raw_data) %>% 
+  pivot_longer(-normalization,
+               names_to = "elements",
+               values_to = "concentration") %>% 
+  ggplot(.,aes(x = elements, y = concentration)) +
+  geom_boxplot(width = 0.4, position = position_dodge(0.1)) +
+  facet_wrap( .~ normalization, scales = "free_y", nrow = 3) +
+  theme_bw() +
+  theme(strip.text.x = element_text(size = 14),
+        panel.grid.minor.y = element_blank()) +
+  scale_y_continuous(labels = label_scientific(digits = 2),limits = c(0, NA)) +
+  labs(x = "Elements",
+       y = "Concentration") +
+  ggeasy::easy_all_text_color("black") +
+  ggeasy::easy_all_text_size(size = 16)
+
+all_data
+ggsave(all_data, filename = "plot/data_normalizedfig.jpg", height = 8, width = 10, units = "in", dpi = 600)
+
+```
+
+
+
+## Corrplot of elements
+```{r}
+jpeg("corr.plot.jpg", width = 2840, height = 2840, res = 300)
+corrplot::corrplot.mixed(cor(df_elements[,2:13]), upper = "ellipse")
+dev.off()
+```
+
+
+## PCA with loadings
+```{r}
+PC <- row_wise_normalization[,-13] %>% 
+  as.matrix(.) %>% 
+  prcomp(., )
+summary(PC)
+var1 <-  summary(PC)
+
+plt <- data.frame(scores(PC)[,1:2],
+                  treatment = df$plant_community)
+pc_rotation <- data.frame(PC$rotation[,1:2])
+
+plt_pca_loadings <- ggplot(plt, aes(PC1, PC2,  fill = treatment))  +
+  stat_ellipse(geom = "polygon", level = 0.95, alpha = 0.3, show.legend = F) +
+  geom_point(pch= 21, size = 5) +
+  scale_fill_jama(name ="    Knapweed",
+                  label = c("Invaded", "Uninvaded")) +
+  theme_bw() +
+  theme(panel.grid = element_blank(),
+        legend.position = c(0.92, 0.926),
+        # legend.box = "vertical",
+        legend.box.background = element_rect(color="black", size=0.3),
+        legend.box.margin = margin(6, 6, 6, 6),
+        panel.border = element_rect(linetype = "solid", colour = "black", size=1.05)) +
+  labs(x = glue("Axis 1 ({var1$importance[2,1]*100} %)"),
+       y = glue("Axis 2 ({var1$importance[2,2]*100} %)"))+
+  annotate("text", label = "Pseudo F = 4.84; p = 0.006", x = 0.1, y = -0.12, size = 5 ) +
+  geom_segment(pc_rotation, mapping =  aes(x =0, y =0, xend = PC1/5, yend = PC2/5), 
+               arrow = arrow(length = unit(0.5, "cm")), inherit.aes = FALSE) +
+  ggeasy::easy_all_text_size(size = 14) +
+  ggeasy::easy_all_text_color(color = "black") +
+  geom_label_repel(pc_rotation, mapping = aes(label = rownames(pc_rotation), x = PC1/5, y = PC2/5),
+                   max.overlaps = 15,box.padding = 0.2,  label.padding = 0.3, inherit.aes = FALSE)
+plt_pca_loadings
+
+ggsave(plt_pca_loadings, filename = "plot/plt_pca_loadings.jpg", height = 8, width = 10, units = "in", dpi = 600)
+```
+
+
+## plot PCA with broken stick model
+```{r}
+jpeg("bstick.jpg", width = 2840, height = 1840, res =400)
+screeplot(PC, bstick = T,
+          main = "PCA")
+dev.off()
+```
+
+
+## Correlation among carbon nitrogen PC1 CN ratio
+```{r}
+nutrient_df <- data.frame(PC1 = scores(PC)[,1],
+                          N = df$N_Result,
+                          C = df$C_Result,
+                          Biomass = df$biomass_mean,
+                          Treatment = df$plant_community,
+                          CN_ratio = df$C_Result/df$N_Result)
+
+##PC1 VS Nitrogen
+n_pc1 <- cor.test(nutrient_df$PC1, nutrient_df$N)
+n_pc1
+
+plt_n_pc1 <- ggplot(nutrient_df, aes(x= PC1, y = N)) +
+  geom_point(pch = 21, fill = "royalblue4", size = 4, alpha = 0.5) +
+  geom_smooth(method = "lm", se = T, color = "black",  lwd = 1, linetype = 5) +
+  theme_bw() +
+  labs(y = "Nitrogen %",
+       x = "PC axis 1") +
+  annotate(geom = "text",
+           y= 0.12, 
+           x= 0.1,
+           label = "r = 0.57;  p < 0.001", size = 5)+
+  ggeasy::easy_all_text_size(size = 14) +
+  ggeasy::easy_all_text_color("black") +
+  scale_y_continuous(limits = c(0, NA))
+plt_n_pc1 
+
+
+##PC1 VS Carbon
+c_pc1 <- cor.test(nutrient_df$PC1, nutrient_df$C)
+c_pc1
+
+plt_c_pc1 <- ggplot(nutrient_df, aes(x= PC1, y = C)) +
+  geom_point(pch = 21, fill = "royalblue4", size = 4, alpha = 0.5) +
+  geom_smooth(method = "lm", se = T, color = "black",  lwd = 1, linetype = 5) +
+  theme_bw() +
+  labs(y = "Carbon %",
+       x = "PC axis 1") +
+  annotate(geom = "text",
+           y= 1.2, 
+           x= 0.1,
+           label = "r = 0.57;  p < 0.001", size = 5)+
+  ggeasy::easy_all_text_size(size = 14) +
+  ggeasy::easy_all_text_color("black") +
+  scale_y_continuous(limits = c(0, NA))
+plt_c_pc1 
+
+## PC1 vs Biomass
+
+biom_pc <- cor.test(nutrient_df$PC1, nutrient_df$Biomass)
+biom_pc
+
+plt_biom_pc <- ggplot(nutrient_df, aes(x= PC1, y = Biomass)) +
+  geom_point(pch = 21, fill = "royalblue4", size = 4, alpha = 0.5) +
+  geom_smooth(method = "lm", se = T, color = "black",  lwd = 1, linetype = 5) +
+  theme_bw() +
+  labs(y = "Biomass (g)",
+       x = "PC axis 1") +
+  annotate(geom = "text",
+           y= 0.1, 
+           x= 0.1,
+           label = "r = 0.35;  p = 0.0014", size = 5)+
+  ggeasy::easy_all_text_size(size = 14) +
+  ggeasy::easy_all_text_color("black") +
+  scale_y_continuous(limits = c(0, 0.7))
+plt_biom_pc
+
+
+##Biomass vs CN ratio
+
+cn_biom <- cor.test(nutrient_df$Biomass, nutrient_df$CN_ratio)
+cn_biom
+
+plot_biom_cn <-  ggplot(nutrient_df, aes(x= CN_ratio, y = Biomass)) +
+  geom_point(pch = 21, fill = "royalblue4", size = 4, alpha = 0.5) +
+  geom_smooth(method = "lm", se = T, color = "black",  lwd = 1, linetype = 5) +
+  theme_bw() +
+  labs(y = "Biomass (g)",
+       x = "C/N ratio") +
+  annotate(geom = "text",
+           y= 0.05, 
+           x= 11.4,
+           label = "r = 0.07;  p = 0.54", size = 5)+
+  ggeasy::easy_all_text_size(size = 14) +
+  ggeasy::easy_all_text_color("black") +
+  scale_y_continuous(limits = c(0, 0.7))
+plot_biom_cn
+```
+
+
+##Plot all correlations
+```{r}
+plt_all <- (plt_c_pc1 + plt_n_pc1) / (plt_biom_pc + plot_biom_cn) + 
+  plot_annotation(tag_levels = 'A', tag_prefix = "4") & theme(axis.title = element_text(size = 20) )
+
+plt_all
+
+ggsave(plt_all, filename = "plot/plt_all.jpg", height = 10, width = 10, units = "in", dpi = 800)
+
+
+```
+

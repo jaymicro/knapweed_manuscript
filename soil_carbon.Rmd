@@ -262,7 +262,7 @@ meta_ele <- ele_df %>%
   left_join(., cn_df, by = "id") %>% 
   rename(treatment = plant_community.x)
 
-norm_ele <- vegan::decostand(df_ele, method = "normalize", MARGIN = 1)
+norm_ele <- vegan::decostand(df_ele, method = "normalize", MARGIN = 2)
 
 pc <- prcomp(norm_ele)
 summary(pc)$importance[,1:2]
@@ -346,7 +346,7 @@ all_nut <- ggplot(df_all_element, aes(x = PlantCommunity,y = value, fill = Plant
        y = "Concentration (ppm)")  +
   scale_fill_jama(name = "Knapweed", labels = c("Invaded", "Uninvaded")) +
   facet_wrap(. ~ name, ncol = 4,  scales = "free_y") +
-  scale_y_continuous(labels = label_scientific(digits = 1)) 
+  scale_y_continuous(labels = label_scientific(digits = 1),limits = c(0, NA)) 
 all_nut
 
 ggsave(all_nut, filename = "all_nut.jpg",path = "./plot", width = 16, height = 10, units = "in",dpi = 800)
