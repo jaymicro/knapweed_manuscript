@@ -38,8 +38,7 @@ df_biomass <- read.csv("data/rf_biomass.csv") %>%
   mutate(code = str_remove(plant_id, pattern = "[1-9]-")) %>% 
   mutate(code = str_remove(code, pattern = "-"))%>% 
   group_by(plant_community, code) %>% 
-  summarize(biomass_mean = mean(biomass)) %>% 
-  ungroup()
+  summarize(biomass_mean = mean(biomass), .groups = "drop")
 
 df_cn <- read.csv("data/soil_cn.csv") %>% 
   mutate(code = str_trim(ID, side ="both"))
